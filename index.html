@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1E2A5A">
+<title>Vishi Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Mukta:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1E2A5A; --ink-soft:#5B6590; --bg:#EEF0F8; --card:#FFFFFF; --line:#E0E3F0;
+  --gold:#E8A317; --gold-soft:#FDF1D6; --gold-ink:#8A5E00;
+  --green:#2F7D5B; --green-soft:#E1F2EA; --rose:#B8455A; --rose-soft:#F9E5E9;
+  --hero:#1E2A5A; --hero-ink:#FFFFFF;
+  --nav-h:64px;
+}
+@media (prefers-color-scheme:dark){
+  :root{--ink:#E6E9F7;--ink-soft:#A3AACB;--bg:#0F1326;--card:#1A1F3B;--line:#2A3159;
+  --gold-soft:#3A2F12;--gold-ink:#F2C25A;--green:#5CC495;--green-soft:#15332A;--rose:#EE8599;--rose-soft:#3B1C25;
+  --hero:#26306A;}
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 "Mukta",system-ui,sans-serif;-webkit-tap-highlight-color:transparent;
+  padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 16px)}
+h1,h2,h3{font-family:"Baloo 2","Mukta",system-ui,sans-serif;line-height:1.15;margin:0}
+button,input,select{font:inherit;color:inherit}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 10px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px}
+.top h1{font-size:1.5rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sub{font-size:.85rem;color:var(--ink-soft)}
+.wrap{max-width:560px;margin:0 auto;padding:0 14px}
+
+.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;border:1px solid var(--line)}
+.card h2{font-size:1.2rem;margin-bottom:10px}
+.muted{color:var(--ink-soft);font-size:.9rem}
+
+/* hero */
+.hero{background:var(--hero);color:var(--hero-ink);border:0;display:flex;gap:14px;align-items:center}
+.hero svg{width:44%;max-width:180px;flex-shrink:0;height:auto}
+.hero .amt{font:800 2.1rem/1 "Baloo 2";margin:4px 0}
+.hero .lbl{opacity:.8;font-size:.9rem}
+.hero .pill{display:inline-block;background:rgba(255,255,255,.14);padding:2px 10px;border-radius:99px;font-size:.82rem;margin-top:8px}
+
+/* progress */
+.prog{height:10px;background:var(--line);border-radius:99px;overflow:hidden;margin:8px 0 4px}
+.prog > span{display:block;height:100%;background:var(--green);border-radius:99px;transition:width .3s}
+.split{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
+
+/* member rows */
+.list{display:grid;gap:8px}
+.mrow{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:var(--bg);min-height:60px}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font:800 1rem "Baloo 2";flex-shrink:0;background:var(--card);border:2px solid var(--line)}
+.avatar.got{background:var(--gold);border-color:var(--gold);color:#1E2A5A}
+.mrow .who{flex:1;min-width:0}
+.mrow .who b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.mrow .who small{color:var(--ink-soft);font-size:.82rem}
+.toggle{min-width:92px;min-height:40px;border-radius:12px;border:0;font-weight:700;font-size:.9rem;cursor:pointer}
+.toggle.paid{background:var(--green-soft);color:var(--green)}
+.toggle.unpaid{background:var(--rose-soft);color:var(--rose)}
+
+.chip{display:inline-block;padding:1px 9px;border-radius:99px;font-size:.78rem;font-weight:700}
+.chip.ok{background:var(--green-soft);color:var(--green)}
+.chip.wait{background:var(--rose-soft);color:var(--rose)}
+.chip.got{background:var(--gold-soft);color:var(--gold-ink)}
+
+/* form */
+label.f{display:block;font-weight:600;margin:12px 0 6px;font-size:.95rem}
+input.in,select.in{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:48px;font-size:16px}
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:50px;border-radius:14px;border:1px solid var(--line);
+  background:var(--card);font-weight:700;font-size:1rem;cursor:pointer}
+.btn.primary{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.btn.gold{background:var(--gold);color:#1E2A5A;border-color:var(--gold)}
+.btn.danger{color:var(--rose)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.btns.one{grid-template-columns:1fr}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* month chips */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px;scrollbar-width:none;scroll-snap-type:x proximity}
+.chips::-webkit-scrollbar{display:none}
+.mchip{flex-shrink:0;scroll-snap-align:start;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:8px 12px;text-align:left;cursor:pointer;min-width:96px}
+.mchip b{display:block;font-size:.92rem}
+.mchip small{color:var(--ink-soft);font-size:.78rem}
+.mchip.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.mchip.on small{color:inherit;opacity:.8}
+
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stats3 div{background:var(--bg);border-radius:12px;padding:10px;text-align:center}
+.stats3 b{display:block;font:800 1.2rem "Baloo 2"}
+.stats3 small{color:var(--ink-soft);font-size:.78rem}
+
+/* grid matrix */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -16px;padding:0 16px}
+table{border-collapse:separate;border-spacing:0;font-size:.88rem;min-width:100%}
+th,td{padding:8px 6px;text-align:center;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{color:var(--ink-soft);font-weight:600;font-size:.78rem}
+td:first-child,th:first-child{text-align:left;position:sticky;left:0;background:var(--card);padding-left:0;padding-right:10px;font-weight:600}
+.dot{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:.8rem;font-weight:800}
+.dot.y{background:var(--green-soft);color:var(--green)}
+.dot.n{background:var(--rose-soft);color:var(--rose)}
+
+/* history */
+.cyc{font:700 1rem "Baloo 2";margin:14px 0 8px;display:flex;justify-content:space-between;align-items:center}
+.cyc:first-child{margin-top:0}
+.hitem{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:var(--bg);margin-bottom:8px}
+.hitem .rnd{width:36px;height:36px;border-radius:10px;background:var(--gold-soft);color:var(--gold-ink);display:grid;place-items:center;font:800 1rem "Baloo 2";flex-shrink:0}
+.hitem .mid{flex:1;min-width:0}
+.hitem .mid b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hitem .mid small{color:var(--ink-soft);font-size:.82rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hitem .amt{font-weight:700;text-align:right}
+
+.empty{text-align:center;padding:24px 8px;color:var(--ink-soft)}
+
+/* bottom nav */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--card);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);display:flex;justify-content:center}
+nav.tabs .in{display:grid;grid-template-columns:repeat(4,1fr);width:100%;max-width:560px;height:var(--nav-h)}
+nav.tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  font-size:.75rem;font-weight:600;color:var(--ink-soft);cursor:pointer}
+nav.tabs button svg{width:24px;height:24px}
+nav.tabs button.on{color:var(--ink)}
+nav.tabs button.on .ico{background:var(--gold-soft)}
+nav.tabs .ico{padding:3px 16px;border-radius:99px;display:grid;place-items:center}
+
+.page{display:none}
+.page.on{display:block}
+
+.stat{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+.stat:last-child{border-bottom:0}
+
+#toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);
+  background:var(--ink);color:var(--card);padding:10px 16px;border-radius:12px;opacity:0;transition:opacity .25s;pointer-events:none;
+  width:max-content;max-width:90vw;text-align:center;font-size:.92rem;z-index:20}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){#toast,.prog>span{transition:none}}
+.hidden{display:none}
+@media (min-width:700px){.top{max-width:560px;margin:0 auto}}
+
+/* access control */
+body:not(.is-admin) .admin-only{display:none !important}
+body.is-admin .view-only{display:none !important}
+.badge{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:6px 12px;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.badge.admin{background:var(--green-soft);color:var(--green);border-color:transparent}
+.status{min-width:92px;min-height:36px;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:.88rem}
+.status.paid{background:var(--green-soft);color:var(--green)}
+.status.unpaid{background:var(--rose-soft);color:var(--rose)}
+.picked{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:var(--gold-soft)}
+.loading{text-align:center;padding:60px 16px;color:var(--ink-soft)}
+.log{font-size:.85rem;max-height:320px;overflow-y:auto}
+.log div{padding:8px 0;border-bottom:1px dashed var(--line)}
+.log small{color:var(--ink-soft);display:block}
+.err{color:var(--rose);font-size:.9rem;margin:8px 0 0}
+code{background:var(--bg);padding:1px 5px;border-radius:5px;font-size:.88em}
+
+.sync{font-size:.78rem;color:var(--ink-soft);display:flex;align-items:center;gap:6px}
+.sync.err{color:var(--rose);cursor:pointer}
+.sync.ok{color:var(--green)}
+.hint{font-size:.85rem;color:var(--ink-soft);margin:6px 0 0}
+details{margin-top:12px}
+summary{cursor:pointer;font-weight:600;padding:6px 0}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div style="min-width:0">
+    <h1 id="title">Vishi</h1>
+    <div class="sub" id="subtitle">Loading…</div>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+    <button class="badge" id="accessBadge" data-go="admin">🔒 View only</button>
+    <span class="sync" id="sync"></span>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="loading" class="loading">Loading group data…</div>
+  <div id="loadError" class="card hidden">
+    <h2>Couldn't load data</h2>
+    <p class="muted" id="loadErrorMsg"></p>
+    <div class="btns one"><button class="btn" onclick="location.reload()">Try again</button></div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page" id="page-home">
+    <div class="card hero">
+      <svg id="ring" viewBox="-20 -20 300 300" role="img" aria-label="Who has received the pot this cycle"></svg>
+      <div>
+        <div class="lbl" id="heroCycle"></div>
+        <div class="amt" id="potAmount">₹0</div>
+        <div class="lbl" id="heroMonth"></div>
+        <div class="pill" id="heroLeft"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="split"><h2 style="margin:0">Collection</h2><span class="muted" id="paidCount"></span></div>
+      <div class="prog"><span id="progBar" style="width:0"></span></div>
+      <div class="split muted"><span id="collected"></span><span id="pendingAmt"></span></div>
+      <div class="btns one"><button class="btn" data-go="payments"><span class="admin-only">Update payments</span><span class="view-only">See who has paid</span></button></div>
+    </div>
+
+    <div class="card">
+      <h2>Who takes the pot</h2>
+      <div class="view-only" id="pickedView"></div>
+      <div class="admin-only">
+        <p class="muted" style="margin:0">Only members who haven't received it in this cycle are listed.</p>
+        <label class="f" for="recipient">Member</label>
+        <select class="in" id="recipient"></select>
+        <label class="f" for="note">Note (optional)</label>
+        <input class="in" id="note" placeholder="e.g. draw at Ravi's house">
+        <div class="btns">
+          <button class="btn gold" id="btnDraw">🎲 Random draw</button>
+          <button class="btn primary" id="btnClose">Close month</button>
+        </div>
+        <p class="muted" id="closeHint" style="margin:10px 0 0"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENTS -->
+  <div class="page" id="page-payments">
+    <div class="chips" id="monthChips"></div>
+    <div class="card">
+      <div class="split" style="align-items:center;margin-bottom:10px">
+        <h2 id="payTitle" style="margin:0"></h2>
+        <span class="chip" id="payStatus"></span>
+      </div>
+      <div class="stats3">
+        <div><b id="pPaid">0</b><small>Paid</small></div>
+        <div><b id="pUnpaid">0</b><small>Not paid</small></div>
+        <div><b id="pAmt">₹0</b><small>Collected</small></div>
+      </div>
+      <div class="list" id="payList"></div>
+      <div class="btns one admin-only"><button class="btn" id="btnAllPaid">Mark everyone paid</button></div>
+    </div>
+    <div class="card">
+      <h2>All months</h2>
+      <p class="muted" style="margin:0 0 10px">Swipe sideways to see older months.</p>
+      <div class="scroll"><table id="matrix"></table></div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="page" id="page-history">
+    <div class="card">
+      <h2>Members</h2>
+      <div id="memberStats"></div>
+    </div>
+    <div class="card">
+      <h2>Pot history</h2>
+      <div id="historyList"></div>
+      <div class="btns one admin-only"><button class="btn" id="btnUndo">Undo last closed month</button></div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="page" id="page-admin">
+
+    <!-- first-time setup -->
+    <div class="card hidden" id="setupCard">
+      <h2>First-time admin setup</h2>
+      <p class="muted" style="margin:0">Do this once. The page will save data into <code>data.json</code> in your GitHub repo.</p>
+      <label class="f" for="suOwner">GitHub username</label>
+      <input class="in" id="suOwner" autocapitalize="off" autocomplete="off">
+      <label class="f" for="suRepo">Repository name</label>
+      <input class="in" id="suRepo" autocapitalize="off" autocomplete="off">
+      <label class="f" for="suBranch">Branch</label>
+      <input class="in" id="suBranch" value="main" autocapitalize="off">
+      <label class="f" for="suToken">GitHub token</label>
+      <input class="in" id="suToken" type="password" autocomplete="off" placeholder="github_pat_…">
+      <p class="hint">Create at GitHub → Settings → Developer settings → Fine-grained tokens. Give access to this repo only, with <b>Contents: Read and write</b>. See README.</p>
+      <label class="f" for="suPass">Admin password</label>
+      <input class="in" id="suPass" type="password" autocomplete="new-password">
+      <label class="f" for="suPass2">Repeat password</label>
+      <input class="in" id="suPass2" type="password" autocomplete="new-password">
+      <p class="hint">Use at least 10 characters. Share it only with people who manage the group.</p>
+      <p class="err hidden" id="suErr"></p>
+      <div class="btns one"><button class="btn primary" id="btnSetup">Save setup</button></div>
+    </div>
+
+    <!-- login -->
+    <div class="card hidden" id="loginCard">
+      <h2>Admin sign in</h2>
+      <p class="muted" style="margin:0">Anyone with the link can view. Sign in to record payments or change settings.</p>
+      <label class="f" for="loginName">Your name</label>
+      <input class="in" id="loginName" autocomplete="name" placeholder="Shown in the activity log">
+      <label class="f" for="loginPass">Password</label>
+      <input class="in" id="loginPass" type="password" autocomplete="current-password">
+      <p class="err hidden" id="loginErr"></p>
+      <div class="btns one"><button class="btn primary" id="btnLogin">Sign in</button></div>
+    </div>
+
+    <div class="admin-only">
+      <div class="card">
+        <div class="split" style="align-items:center">
+          <div><b>Signed in</b><div class="muted" id="whoami"></div></div>
+          <button class="badge" id="btnLogout">Sign out</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Group</h2>
+        <label class="f" for="setName">Group name</label>
+        <input class="in" id="setName">
+        <label class="f" for="setAmt">Monthly contribution per person (₹)</label>
+        <input class="in" id="setAmt" type="number" inputmode="numeric" min="1">
+        <label class="f" for="setStart">First month</label>
+        <input class="in" id="setStart" type="month">
+      </div>
+      <div class="card">
+        <h2>Members</h2>
+        <div class="list" id="memberInputs"></div>
+        <div class="btns">
+          <button class="btn" id="btnAddMember">+ Add</button>
+          <button class="btn" id="btnRemoveMember">Remove last</button>
+        </div>
+        <p class="muted" id="memberLock" style="margin:10px 0 0"></p>
+      </div>
+      <div class="btns one" style="margin:0 0 14px"><button class="btn primary" id="btnSaveSettings">Save settings</button></div>
+
+      <div class="card">
+        <h2>Activity</h2>
+        <div class="log" id="activityLog"></div>
+        <p class="hint">Every save is also a commit in your repo, so GitHub keeps the full history.</p>
+      </div>
+
+      <div class="card">
+        <h2>Security</h2>
+        <details>
+          <summary>Change admin password</summary>
+          <label class="f" for="cpNew">New password</label>
+          <input class="in" id="cpNew" type="password" autocomplete="new-password">
+          <label class="f" for="cpNew2">Repeat new password</label>
+          <input class="in" id="cpNew2" type="password" autocomplete="new-password">
+          <div class="btns one"><button class="btn" id="btnChangePass">Change password</button></div>
+        </details>
+        <details>
+          <summary>Replace GitHub token</summary>
+          <p class="hint">Use this when your token expires.</p>
+          <label class="f" for="rtToken">New token</label>
+          <input class="in" id="rtToken" type="password" autocomplete="off">
+          <div class="btns one"><button class="btn" id="btnReplaceToken">Replace token</button></div>
+        </details>
+      </div>
+
+      <div class="card">
+        <h2>Backup</h2>
+        <p class="muted" style="margin:0">Data lives in <code>data.json</code> in your repo. Download a copy anytime.</p>
+        <div class="btns">
+          <button class="btn" id="btnExport">Download</button>
+          <button class="btn" id="btnImport">Import</button>
+        </div>
+        <input type="file" id="fileImport" accept="application/json,.json" class="hidden">
+        <div class="btns one"><button class="btn danger" id="btnReset">Delete all data</button></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="in">
+    <button data-tab="home" class="on"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>Home</button>
+    <button data-tab="payments"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg></span>Payments</button>
+    <button data-tab="history"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>History</button>
+    <button data-tab="admin"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>Admin</button>
+  </div>
+</nav>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   Vishi Tracker: data is stored in data.json in this GitHub repo.
+   Viewing: anyone. Editing: admin password, which unlocks an
+   encrypted GitHub token stored in data.json.
+   ========================================================= */
+const DATA_PATH = 'data.json';
+const $ = id => document.getElementById(id);
+const rupee = n => '₹' + Number(n||0).toLocaleString('en-IN');
+const uid = () => Math.random().toString(36).slice(2, 9);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const initial = s => esc((String(s).trim().charAt(0) || '?').toUpperCase());
+const fmtDay = iso => { try{ return new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'short'}); }catch(e){ return ''; } };
+const fmtTime = iso => { try{ return new Date(iso).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}); }catch(e){ return ''; } };
+const clone = o => JSON.parse(JSON.stringify(o));
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2600); }
+try{ localStorage.removeItem('vishi-tracker-v1'); }catch(e){}   // clear old test data from earlier versions
+
+function emptyData(){
+  const d = new Date();
+  return {
+    version:2,
+    settings:{ groupName:'Our Vishi', contribution:2000,
+      startMonth:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,
+      members:['Member 1','Member 2','Member 3','Member 4','Member 5'].map((name,i)=>({id:'m'+(i+1),name})) },
+    history:[], draft:{payments:{}, recipientId:'', note:''}, log:[], auth:null
+  };
+}
+function normalize(d){
+  d = d || emptyData();
+  d.settings ??= emptyData().settings; d.history ??= []; d.log ??= [];
+  d.draft ??= {payments:{},recipientId:'',note:''}; d.draft.payments ??= {};
+  return d;
+}
+
+/* ---------- base64 / crypto ---------- */
+const b64enc = str => btoa(unescape(encodeURIComponent(str)));
+const b64dec = b64 => decodeURIComponent(escape(atob(b64.replace(/\s/g,''))));
+const bytesToB64 = b => btoa(String.fromCharCode(...new Uint8Array(b)));
+const b64ToBytes = s => Uint8Array.from(atob(s), c=>c.charCodeAt(0));
+async function deriveKey(password, salt, iter){
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:iter, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+async function encryptToken(token, password){
+  const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12)), iter = 250000;
+  const key = await deriveKey(password, salt, iter);
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, new TextEncoder().encode(token));
+  return {salt:bytesToB64(salt), iv:bytesToB64(iv), iter, token:bytesToB64(ct)};
+}
+async function decryptToken(auth, password){
+  const key = await deriveKey(password, b64ToBytes(auth.salt), auth.iter);
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64ToBytes(auth.iv)}, key, b64ToBytes(auth.token));
+  return new TextDecoder().decode(pt);
+}
+
+/* ---------- GitHub ---------- */
+function repoGuess(){
+  const host = location.hostname, seg = location.pathname.split('/').filter(Boolean);
+  if(host.endsWith('.github.io')){
+    const owner = host.replace('.github.io','');
+    return {owner, repo: seg.length && !seg[0].endsWith('.html') ? seg[0] : `${owner}.github.io`};
+  }
+  return {owner:'', repo:''};
+}
+const apiUrl = r => `https://api.github.com/repos/${r.owner}/${r.repo}/contents/${DATA_PATH}?ref=${encodeURIComponent(r.branch||'main')}`;
+async function ghGet(r, token){
+  const res = await fetch(apiUrl(r) + '&t=' + Date.now(), {cache:'no-store', headers: token ? {Authorization:`Bearer ${token}`, Accept:'application/vnd.github+json'} : {Accept:'application/vnd.github+json'}});
+  if(res.status === 404) return {data:null, sha:null};
+  if(!res.ok) throw new Error(`GitHub read failed (${res.status})`);
+  const j = await res.json();
+  return {data: JSON.parse(b64dec(j.content)), sha: j.sha};
+}
+async function ghPut(r, token, data, sha, message){
+  const body = {message, content: b64enc(JSON.stringify(data, null, 2) + '\n'), branch: r.branch||'main'};
+  if(sha) body.sha = sha;
+  const res = await fetch(`https://api.github.com/repos/${r.owner}/${r.repo}/contents/${DATA_PATH}`, {
+    method:'PUT', headers:{Authorization:`Bearer ${token}`, Accept:'application/vnd.github+json', 'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){ const e = new Error(`GitHub save failed (${res.status})`); e.status = res.status; throw e; }
+  return (await res.json()).content.sha;
+}
+
+/* ---------- state ---------- */
+let state = null, tab = 'home', payView = 'current';
+let session = null;   // {token, name}
+try{ session = JSON.parse(sessionStorage.getItem('vishi-session')) || null; }catch(e){}
+const isAdmin = () => !!session && !!state?.auth;
+
+async function loadData(){
+  let d = null;
+  try{ const r = await fetch(DATA_PATH + '?t=' + Date.now(), {cache:'no-store'}); if(r.ok) d = await r.json(); }catch(e){}
+  const repo = d?.auth?.owner ? d.auth : null;
+  if(repo){   // GitHub Pages can be a few minutes behind; the API has the latest commit
+    try{ const g = await ghGet(repo, session?.token); if(g.data) d = g.data; }catch(e){}
+  }
+  return d;
+}
+
+async function refresh(quiet){
+  if(queue.length || saving) return;
+  const d = await loadData();
+  $('loading').classList.add('hidden');
+  if(!d && !state){
+    $('loadError').classList.remove('hidden');
+    $('loadErrorMsg').textContent = 'data.json was not found next to this page. Upload data.json to the repo, or open the page from GitHub Pages (not as a local file).';
+    return;
+  }
+  if(d){ state = normalize(d); }
+  render();
+  if(!quiet) setSync('');
+}
+
+/* ---------- saving (queued, each save = one commit) ---------- */
+let queue = [], saving = false;
+function setSync(kind, text){
+  const s = $('sync'); s.className = 'sync ' + (kind||''); s.textContent = text || '';
+  s.onclick = kind==='err' ? ()=>{ setSync('', ''); flush(); } : null;
+}
+function mutate(action, fn){
+  if(!isAdmin()){ toast('Sign in as admin to make changes'); return false; }
+  try{ fn(state); }catch(e){ toast(e.message); return false; }
+  state.log.unshift({at:new Date().toISOString(), by:session.name||'Admin', action});
+  state.log = state.log.slice(0,200);
+  render();
+  queue.push({action, fn, at:new Date().toISOString()});
+  flush();
+  return true;
+}
+async function flush(){
+  if(saving || !queue.length) return;
+  saving = true; setSync('', 'Saving…');
+  const r = state.auth;
+  for(let attempt=0; attempt<3 && queue.length; attempt++){
+    const batch = queue.slice();
+    try{
+      const {data, sha} = await ghGet(r, session.token);
+      const remote = normalize(data || clone(state));
+      batch.forEach(b=>{
+        b.fn(remote);
+        remote.log.unshift({at:b.at, by:session.name||'Admin', action:b.action});
+      });
+      remote.log = remote.log.slice(0,200);
+      remote.auth = remote.auth || state.auth;
+      await ghPut(r, session.token, remote, sha, batch.map(b=>b.action).join('; ').slice(0,300));
+      queue.splice(0, batch.length);
+      // re-apply anything queued while saving
+      state = normalize(clone(remote)); queue.forEach(b=>b.fn(state));
+      render(); setSync('ok', 'Saved ✓');
+      setTimeout(()=>{ if(!saving && !queue.length) setSync('',''); }, 2500);
+      attempt = -1;   // keep going if more queued
+      if(!queue.length) break;
+    }catch(e){
+      if(e.status === 409 || e.status === 422) continue;   // someone else saved first → retry on fresh data
+      if(e.status === 401 || e.status === 403){ setSync('err','Token rejected. Replace it in Admin'); saving=false; return; }
+      setSync('err', 'Not saved · tap to retry'); saving = false; return;
+    }
+  }
+  saving = false;
+  if(queue.length){ setSync('err','Not saved · tap to retry'); }
+}
+window.addEventListener('beforeunload', e=>{ if(queue.length){ e.preventDefault(); e.returnValue=''; } });
+
+/* ---------- derived ---------- */
+const members = (s=state) => s.settings.members;
+const n = (s=state) => members(s).length;
+const pot = (s=state) => s.settings.contribution * n(s);
+const nameOf = (id, s=state) => (members(s).find(m=>m.id===id)||{name:'(removed)'}).name;
+const isPaid = v => !!v;
+const cycleInfo = (s=state) => { const d=s.history.length; return {cycle:Math.floor(d/n(s))+1, round:(d%n(s))+1}; };
+function monthLabel(offset, short, s=state){
+  const [y,m] = s.settings.startMonth.split('-').map(Number);
+  return new Date(y, m-1+offset, 1).toLocaleString('en-IN', short ? {month:'short',year:'2-digit'} : {month:'long',year:'numeric'});
+}
+const receivedThisCycle = (s=state) => { const {cycle}=cycleInfo(s); return new Set(s.history.filter(h=>h.cycle===cycle).map(h=>h.recipientId)); };
+const eligible = (s=state) => { const got=receivedThisCycle(s); return members(s).filter(m=>!got.has(m.id)); };
+const paymentsFor = (s, key) => key==='current' ? s.draft.payments : (s.history.find(h=>h.id===key)||{}).payments;
+function allMonths(){
+  const list = state.history.map((h,i)=>({key:h.id, label:h.monthLabel, short:monthLabel(i,true), payments:h.payments||{},
+    each:h.contributionEach, count:h.memberCount, closed:true}));
+  list.push({key:'current', label:monthLabel(state.history.length), short:monthLabel(state.history.length,true),
+    payments:state.draft.payments, each:state.settings.contribution, count:n(), closed:false});
+  return list;
+}
+
+/* ---------- render ---------- */
+function render(){
+  if(!state) return;
+  document.body.classList.toggle('is-admin', isAdmin());
+  const b = $('accessBadge'); b.textContent = isAdmin() ? '✓ Admin' : '🔒 View only'; b.classList.toggle('admin', isAdmin());
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on', p.id==='page-'+tab));
+  const s = state.settings, {cycle, round} = cycleInfo();
+  $('title').textContent = s.groupName; document.title = s.groupName + ' · Vishi';
+  $('subtitle').textContent = `${n()} members · ${rupee(s.contribution)}/month`;
+  renderHome(cycle, round); renderPayments(); renderHistory(); renderAdmin();
+}
+
+function renderRing(){
+  const got = receivedThisCycle(), cx=130, cy=130, r=100, list=members();
+  let svg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-dasharray="4 7"/>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="54" fill="rgba(255,255,255,.08)" stroke="#E8A317" stroke-width="3"/>`;
+  svg += `<text x="${cx}" y="${cy+4}" text-anchor="middle" style="font:800 34px 'Baloo 2',sans-serif;fill:#fff">${got.size}/${list.length}</text>`;
+  svg += `<text x="${cx}" y="${cy+28}" text-anchor="middle" style="font:600 15px 'Mukta',sans-serif;fill:rgba(255,255,255,.75)">received</text>`;
+  list.forEach((m,i)=>{
+    const a = -Math.PI/2 + i*2*Math.PI/list.length, x = cx + r*Math.cos(a), y = cy + r*Math.sin(a), has = got.has(m.id);
+    svg += `<circle cx="${x}" cy="${y}" r="24" fill="${has?'#E8A317':'#1E2A5A'}" stroke="${has?'#E8A317':'rgba(255,255,255,.6)'}" stroke-width="2.5"/>`;
+    svg += `<text x="${x}" y="${y+8}" text-anchor="middle" style="font:800 22px 'Baloo 2',sans-serif;fill:${has?'#1E2A5A':'#fff'}">${initial(m.name)}</text>`;
+  });
+  $('ring').innerHTML = svg;
+}
+
+function renderHome(cycle, round){
+  renderRing();
+  const d = state.draft, left = eligible().length;
+  $('heroCycle').textContent = `Cycle ${cycle} · Round ${round} of ${n()}`;
+  $('potAmount').textContent = rupee(pot());
+  $('heroMonth').textContent = monthLabel(state.history.length);
+  $('heroLeft').textContent = `${left} still to receive`;
+  const paid = members().filter(m=>isPaid(d.payments[m.id])).length;
+  $('paidCount').textContent = `${paid}/${n()} paid`;
+  $('progBar').style.width = (paid/n()*100)+'%';
+  $('collected').textContent = `${rupee(paid*state.settings.contribution)} collected`;
+  $('pendingAmt').textContent = paid<n() ? `${rupee((n()-paid)*state.settings.contribution)} pending` : 'All paid ✓';
+  const el = eligible(), rid = el.find(m=>m.id===d.recipientId) ? d.recipientId : '';
+  $('pickedView').innerHTML = rid
+    ? `<div class="picked"><div class="avatar got">${initial(nameOf(rid))}</div><div><b>${esc(nameOf(rid))}</b><div class="muted">Takes ${rupee(pot())} this month${d.note?' · '+esc(d.note):''}</div></div></div>`
+    : `<p class="muted" style="margin:0">Not decided yet. Still eligible: ${el.map(m=>esc(m.name)).join(', ')}.</p>`;
+  $('recipient').innerHTML = `<option value="">Choose a member</option>` + el.map(m=>`<option value="${m.id}" ${m.id===rid?'selected':''}>${esc(m.name)}</option>`).join('');
+  if(document.activeElement !== $('note')) $('note').value = d.note || '';
+  const hint = [];
+  if(paid < n()) hint.push(`${n()-paid} payment(s) pending`);
+  if(!rid) hint.push('no one chosen yet');
+  $('closeHint').textContent = hint.length ? 'Before closing: ' + hint.join(', ') + '.' : 'Ready to close this month.';
+}
+
+function renderPayments(){
+  const months = allMonths();
+  if(!months.find(m=>m.key===payView)) payView = 'current';
+  const cur = months.find(m=>m.key===payView);
+  $('monthChips').innerHTML = months.map(m=>{
+    const p = Object.values(m.payments).filter(isPaid).length;
+    return `<button class="mchip ${m.key===payView?'on':''}" data-key="${m.key}"><b>${esc(m.short)}</b><small>${m.closed?`${p}/${m.count} paid`:'Current'}</small></button>`;
+  }).join('');
+  $('monthChips').querySelectorAll('.mchip').forEach(b=>b.onclick=()=>{ payView=b.dataset.key; renderPayments(); });
+  const on = $('monthChips').querySelector('.on'); if(on && tab==='payments') on.scrollIntoView({inline:'nearest',block:'nearest'});
+
+  const paidN = members().filter(m=>isPaid(cur.payments[m.id])).length;
+  $('payTitle').textContent = cur.label;
+  $('payStatus').textContent = paidN===n() ? 'All paid' : `${n()-paidN} pending`;
+  $('payStatus').className = 'chip ' + (paidN===n() ? 'ok' : 'wait');
+  $('pPaid').textContent = paidN; $('pUnpaid').textContent = n()-paidN; $('pAmt').textContent = rupee(paidN*cur.each);
+
+  const sorted = [...members()].sort((a,b)=>isPaid(cur.payments[a.id]) - isPaid(cur.payments[b.id]));
+  $('payList').innerHTML = sorted.map(m=>{
+    const v = cur.payments[m.id], p = isPaid(v);
+    const when = p && typeof v==='string' ? `Paid on ${fmtDay(v)}` : p ? 'Paid' : `Owes ${rupee(cur.each)}`;
+    const ctl = isAdmin()
+      ? `<button class="toggle ${p?'paid':'unpaid'}" data-id="${m.id}" aria-pressed="${p}">${p?'✓ Paid':'Not paid'}</button>`
+      : `<span class="status ${p?'paid':'unpaid'}">${p?'✓ Paid':'Not paid'}</span>`;
+    return `<div class="mrow"><div class="avatar">${initial(m.name)}</div><div class="who"><b>${esc(m.name)}</b><small>${when}</small></div>${ctl}</div>`;
+  }).join('');
+  $('payList').querySelectorAll('.toggle').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.id, key=payView, now=!isPaid(cur.payments[id]), at=new Date().toISOString();
+    mutate(`${nameOf(id)} marked ${now?'paid':'not paid'} for ${cur.label}`, s=>{
+      const p = paymentsFor(s,key); if(p) p[id] = now ? at : false;
+    });
+  });
+
+  const rev = [...months].reverse();
+  let t = `<thead><tr><th>Member</th>${rev.map(m=>`<th>${esc(m.short)}</th>`).join('')}</tr></thead><tbody>`;
+  members().forEach(m=>{
+    t += `<tr><td>${esc(m.name)}</td>${rev.map(mo=>isPaid(mo.payments[m.id])
+      ? `<td><span class="dot y" aria-label="paid">✓</span></td>` : `<td><span class="dot n" aria-label="not paid">✕</span></td>`).join('')}</tr>`;
+  });
+  $('matrix').innerHTML = t + '</tbody>';
+}
+
+function renderHistory(){
+  const got = receivedThisCycle();
+  $('memberStats').innerHTML = members().map(m=>{
+    const paid = state.history.reduce((s,h)=>s+(isPaid((h.payments||{})[m.id])?h.contributionEach:0),0)
+               + (isPaid(state.draft.payments[m.id]) ? state.settings.contribution : 0);
+    const recd = state.history.filter(h=>h.recipientId===m.id).reduce((s,h)=>s+h.amount,0);
+    return `<div class="stat"><span>${esc(m.name)} ${got.has(m.id)?'<span class="chip got">Got pot</span>':''}</span>
+      <span class="muted" style="text-align:right">Paid ${rupee(paid)}<br>Got ${rupee(recd)}</span></div>`;
+  }).join('');
+  if(!state.history.length){
+    $('historyList').innerHTML = `<div class="empty">No months closed yet.</div>`;
+  } else {
+    let html='', last=null;
+    [...state.history].reverse().forEach(h=>{
+      if(h.cycle!==last){
+        const count = state.history.filter(x=>x.cycle===h.cycle).length, done = count>=h.memberCount;
+        html += `<div class="cyc">Cycle ${h.cycle}<span class="chip ${done?'ok':'got'}">${done?'Complete':`${count}/${h.memberCount}`}</span></div>`;
+        last=h.cycle;
+      }
+      const p = Object.values(h.payments||{}).filter(isPaid).length;
+      html += `<div class="hitem"><div class="rnd">${h.round}</div>
+        <div class="mid"><b>${esc(h.recipientName)}</b><small>${esc(h.monthLabel)}${h.note?' · '+esc(h.note):''}</small></div>
+        <div class="amt">${rupee(h.amount)}<br><span class="chip ${p>=h.memberCount?'ok':'wait'}">${p}/${h.memberCount} paid</span></div></div>`;
+    });
+    $('historyList').innerHTML = html;
+  }
+  $('btnUndo').disabled = state.history.length === 0;
+}
+
+function renderAdmin(){
+  const hasAuth = !!state.auth;
+  $('setupCard').classList.toggle('hidden', hasAuth);
+  $('loginCard').classList.toggle('hidden', !hasAuth || isAdmin());
+  if(!hasAuth && !$('suOwner').value){ const g = repoGuess(); $('suOwner').value = g.owner; $('suRepo').value = g.repo; }
+  if(!isAdmin()) return;
+  $('whoami').textContent = `${session.name||'Admin'} · ${state.auth.owner}/${state.auth.repo}`;
+  $('activityLog').innerHTML = state.log.length
+    ? state.log.slice(0,60).map(l=>`<div>${esc(l.action)}<small>${esc(l.by)} · ${fmtTime(l.at)}</small></div>`).join('')
+    : '<div class="muted">No activity yet.</div>';
+  if(document.activeElement && document.activeElement.closest('#page-admin') && document.activeElement.tagName==='INPUT') return;
+  const s = state.settings;
+  $('setName').value = s.groupName; $('setAmt').value = s.contribution; $('setStart').value = s.startMonth;
+  $('memberInputs').innerHTML = s.members.map((m,i)=>
+    `<div class="mrow" style="min-height:0;padding:6px 8px"><div class="avatar">${i+1}</div>
+     <input class="in" data-id="${m.id}" value="${esc(m.name)}" aria-label="Member ${i+1} name" style="background:var(--card)"></div>`).join('');
+  const locked = state.history.length % n() !== 0;
+  $('btnAddMember').disabled = locked; $('btnRemoveMember').disabled = locked || n() <= 2;
+  $('setAmt').disabled = locked; $('setStart').disabled = state.history.length > 0;
+  $('memberLock').textContent = locked ? 'Members and amount can change only after this cycle finishes. Names can be edited anytime.' : '';
+}
+
+/* ---------- navigation ---------- */
+function go(t){
+  tab = t; if(t==='payments') payView='current';
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.tab===t));
+  if(document.activeElement) document.activeElement.blur();
+  render(); window.scrollTo(0,0);
+}
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>go(b.dataset.tab));
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') refresh(true); });
+
+/* ---------- setup & login ---------- */
+function showErr(id, msg){ $(id).textContent = msg; $(id).classList.toggle('hidden', !msg); }
+
+$('btnSetup').onclick = async ()=>{
+  const owner=$('suOwner').value.trim(), repo=$('suRepo').value.trim(), branch=$('suBranch').value.trim()||'main';
+  const token=$('suToken').value.trim(), p1=$('suPass').value, p2=$('suPass2').value;
+  showErr('suErr','');
+  if(!owner || !repo || !token) return showErr('suErr','Fill in username, repository and token.');
+  if(p1.length < 8) return showErr('suErr','Password must be at least 8 characters.');
+  if(p1 !== p2) return showErr('suErr','Passwords do not match.');
+  $('btnSetup').disabled = true; $('btnSetup').textContent = 'Checking…';
+  try{
+    const r = {owner, repo, branch};
+    const {data, sha} = await ghGet(r, token);
+    if(data?.auth) throw new Error('This repo is already set up. Reload the page and sign in.');
+    const enc = await encryptToken(token, p1);
+    const fresh = normalize(data || state || emptyData());
+    fresh.auth = {owner, repo, branch, ...enc};
+    fresh.log.unshift({at:new Date().toISOString(), by:'Admin', action:'Admin access set up'});
+    await ghPut(r, token, fresh, sha, 'Set up admin access');
+    state = fresh;
+    session = {token, name:''}; sessionStorage.setItem('vishi-session', JSON.stringify(session));
+    ['suToken','suPass','suPass2'].forEach(id=>$(id).value='');
+    toast('Setup saved. You are signed in.'); render();
+  }catch(e){
+    showErr('suErr', e.message.includes('(401)') || e.message.includes('(403)')
+      ? 'GitHub rejected the token. Check it has Contents: Read and write for this repo.'
+      : e.message.includes('(404)') ? 'Repo not found. Check username, repo name and token access.' : e.message);
+  }
+  $('btnSetup').disabled = false; $('btnSetup').textContent = 'Save setup';
+};
+
+$('btnLogin').onclick = async ()=>{
+  const pass = $('loginPass').value, name = $('loginName').value.trim();
+  showErr('loginErr','');
+  if(!pass) return showErr('loginErr','Enter the password.');
+  $('btnLogin').disabled = true; $('btnLogin').textContent = 'Checking…';
+  try{
+    const token = await decryptToken(state.auth, pass);
+    session = {token, name}; sessionStorage.setItem('vishi-session', JSON.stringify(session));
+    $('loginPass').value = ''; toast('Signed in'); render();
+  }catch(e){ showErr('loginErr','Wrong password.'); }
+  $('btnLogin').disabled = false; $('btnLogin').textContent = 'Sign in';
+};
+$('loginPass').onkeydown = e=>{ if(e.key==='Enter') $('btnLogin').click(); };
+$('btnLogout').onclick = ()=>{
+  if(queue.length && !confirm('Some changes are still saving. Sign out anyway?')) return;
+  session = null; sessionStorage.removeItem('vishi-session'); toast('Signed out'); go('home');
+};
+
+$('btnChangePass').onclick = async ()=>{
+  const a=$('cpNew').value, b=$('cpNew2').value;
+  if(a.length < 8) return toast('Password must be at least 8 characters');
+  if(a !== b) return toast('Passwords do not match');
+  const enc = await encryptToken(session.token, a);
+  mutate('Changed admin password', s=>{ Object.assign(s.auth, enc); });
+  $('cpNew').value = $('cpNew2').value = ''; toast('Password changed');
+};
+$('btnReplaceToken').onclick = async ()=>{
+  const t = $('rtToken').value.trim(); if(!t) return;
+  const pass = prompt('Enter the admin password to lock the new token');
+  if(!pass) return;
+  try{ await decryptToken(state.auth, pass); }catch(e){ return toast('Wrong password'); }
+  try{ await ghGet(state.auth, t); }catch(e){ return toast('GitHub rejected this token'); }
+  const enc = await encryptToken(t, pass);
+  session.token = t; sessionStorage.setItem('vishi-session', JSON.stringify(session));
+  mutate('Replaced GitHub token', s=>{ Object.assign(s.auth, enc); });
+  $('rtToken').value=''; toast('Token replaced');
+};
+
+/* ---------- admin actions ---------- */
+$('btnAllPaid').onclick = ()=>{
+  const key = payView, label = allMonths().find(m=>m.key===key).label, at = new Date().toISOString();
+  mutate(`Everyone marked paid for ${label}`, s=>{
+    const p = paymentsFor(s,key); if(p) members(s).forEach(m=>{ if(!isPaid(p[m.id])) p[m.id]=at; });
+  });
+};
+$('recipient').onchange = e=>{
+  const id = e.target.value;
+  mutate(id ? `Chose ${nameOf(id)} to take the pot` : 'Cleared pot choice', s=>{ s.draft.recipientId=id; });
+};
+$('note').onchange = e=>{ const v=e.target.value; mutate('Updated month note', s=>{ s.draft.note=v; }); };
+
+$('btnDraw').onclick = ()=>{
+  const el = eligible(); if(!el.length) return;
+  const pick = el[Math.floor(Math.random()*el.length)];
+  if(mutate(`Random draw picked ${pick.name}`, s=>{ s.draft.recipientId=pick.id; })) toast(`🎉 ${pick.name} is picked this month`);
+};
+
+$('btnClose').onclick = ()=>{
+  const d = state.draft;
+  if(!d.recipientId){ toast('Choose who takes the pot first'); return; }
+  const pending = members().filter(m=>!isPaid(d.payments[m.id])).length;
+  if(pending && !confirm(`${pending} member(s) haven't paid. Close the month anyway? You can still mark them paid later in Payments.`)) return;
+  const {cycle, round} = cycleInfo(), note = $('note').value, id = uid(), closedOn = new Date().toISOString(), rid = d.recipientId;
+  const ok = mutate(`Closed ${monthLabel(state.history.length)}: ${nameOf(rid)} took ${rupee(pot())}`, s=>{
+    if(s.history.find(h=>h.id===id)) return;
+    const c = cycleInfo(s);
+    if(receivedThisCycle(s).has(rid)) throw new Error(`${nameOf(rid,s)} already received the pot this cycle`);
+    s.history.push({
+      id, cycle:c.cycle, round:c.round, monthLabel:monthLabel(s.history.length,false,s),
+      recipientId:rid, recipientName:nameOf(rid,s), amount:pot(s), contributionEach:s.settings.contribution, memberCount:n(s),
+      payments:{...s.draft.payments}, note:note||s.draft.note||'', closedOn
+    });
+    s.draft = {payments:{}, recipientId:'', note:''};
+  });
+  if(ok){ $('note').value=''; toast(round===n() ? `Cycle ${cycle} complete! Cycle ${cycle+1} starts next month.` : 'Month closed'); }
+};
+
+$('btnUndo').onclick = ()=>{
+  if(!confirm('Reopen the last closed month? It will be removed from history.')) return;
+  const lastId = state.history.at(-1)?.id;
+  if(mutate('Reopened last closed month', s=>{
+    if(s.history.at(-1)?.id !== lastId) return;
+    const last = s.history.pop();
+    s.draft = {payments:last.payments||{}, recipientId:last.recipientId, note:last.note||''};
+  })){ go('home'); toast('Last month reopened'); }
+};
+
+$('btnReset').onclick = ()=>{
+  if(!confirm('Delete ALL group data, including history? Admin password stays the same.')) return;
+  if(prompt('Type DELETE to confirm') !== 'DELETE') return;
+  if(mutate('Deleted all data and started fresh', s=>{
+    const keep = s.auth, fresh = emptyData(); Object.keys(s).forEach(k=>delete s[k]); Object.assign(s, fresh, {auth:keep});
+  })){ go('home'); toast('All data deleted'); }
+};
+
+$('btnAddMember').onclick = ()=>{
+  if(document.activeElement) document.activeElement.blur();
+  const id = uid(); mutate('Added a member', s=>{ if(!members(s).find(m=>m.id===id)) members(s).push({id, name:`Member ${n(s)+1}`}); });
+};
+$('btnRemoveMember').onclick = ()=>{
+  const m = members()[n()-1];
+  if(!confirm(`Remove ${m.name}?`)) return;
+  if(document.activeElement) document.activeElement.blur();
+  mutate(`Removed ${m.name}`, s=>{
+    const i = members(s).findIndex(x=>x.id===m.id); if(i<0) return;
+    members(s).splice(i,1); delete s.draft.payments[m.id];
+    if(s.draft.recipientId===m.id) s.draft.recipientId='';
+  });
+};
+
+$('btnSaveSettings').onclick = ()=>{
+  const name = $('setName').value.trim() || 'Our Vishi';
+  const amt = Number($('setAmt').value), amtOk = !$('setAmt').disabled && amt>0;
+  const start = !$('setStart').disabled && $('setStart').value;
+  const names = [...$('memberInputs').querySelectorAll('input')].map(i=>({id:i.dataset.id, name:i.value.trim()}));
+  if(document.activeElement) document.activeElement.blur();
+  if(mutate('Updated settings', s=>{
+    s.settings.groupName = name;
+    if(amtOk) s.settings.contribution = amt;
+    if(start) s.settings.startMonth = start;
+    names.forEach(x=>{ const m = members(s).find(mm=>mm.id===x.id); if(m && x.name) m.name = x.name; });
+  })) toast('Settings saved');
+};
+
+$('btnExport').onclick = ()=>{
+  const copy = clone(state); delete copy.auth;
+  const blob = new Blob([JSON.stringify(copy,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `vishi-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('Backup downloaded');
+};
+$('btnImport').onclick = ()=>$('fileImport').click();
+$('fileImport').onchange = e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    let data;
+    try{ data = JSON.parse(r.result); if(!data.settings || !Array.isArray(data.history)) throw 0; }
+    catch(err){ toast('That file is not a Vishi backup'); return; }
+    if(!confirm('Replace the group data for everyone with this backup?')) return;
+    if(mutate('Imported a backup', s=>{
+      const keep = s.auth, log = s.log; Object.keys(s).forEach(k=>delete s[k]);
+      Object.assign(s, normalize(clone(data)), {auth:keep, log});
+    })){ go('home'); toast('Backup imported'); }
+  };
+  r.readAsText(f); e.target.value='';
+};
+
+refresh();
+</script>
+</body>
+</html>
