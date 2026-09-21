@@ -30,10 +30,15 @@
   "history": [],
   "draft": {
     "payments": {},
-    "recipientId": "m3",
+    "recipientId": "",
     "note": ""
   },
   "log": [
+    {
+      "at": "2026-09-21T16:45:00.777Z",
+      "by": "Admin",
+      "action": "Cleared pot choice"
+    },
     {
       "at": "2026-09-21T16:44:05.456Z",
       "by": "Admin",
