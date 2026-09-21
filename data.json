@@ -30,10 +30,15 @@
   "history": [],
   "draft": {
     "payments": {},
-    "recipientId": "",
+    "recipientId": "m3",
     "note": ""
   },
   "log": [
+    {
+      "at": "2026-09-21T16:45:11.344Z",
+      "by": "Admin",
+      "action": "Chose Sunny to take the pot"
+    },
     {
       "at": "2026-09-21T16:45:00.777Z",
       "by": "Admin",
