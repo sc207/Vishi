@@ -27,13 +27,33 @@
       }
     ]
   },
-  "history": [],
+  "history": [
+    {
+      "id": "spdqgmh",
+      "cycle": 1,
+      "round": 1,
+      "monthLabel": "October 2026",
+      "recipientId": "m3",
+      "recipientName": "Sunny",
+      "amount": 10000,
+      "contributionEach": 2000,
+      "memberCount": 5,
+      "payments": {},
+      "note": "",
+      "closedOn": "2026-09-21T16:52:00.548Z"
+    }
+  ],
   "draft": {
     "payments": {},
-    "recipientId": "m3",
+    "recipientId": "",
     "note": ""
   },
   "log": [
+    {
+      "at": "2026-09-21T16:52:00.556Z",
+      "by": "Admin",
+      "action": "Closed October 2026: Sunny took ₹10,000"
+    },
     {
       "at": "2026-09-21T16:51:21.067Z",
       "by": "Admin",
