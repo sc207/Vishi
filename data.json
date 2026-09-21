@@ -27,28 +27,18 @@
       }
     ]
   },
-  "history": [
-    {
-      "id": "spdqgmh",
-      "cycle": 1,
-      "round": 1,
-      "monthLabel": "October 2026",
-      "recipientId": "m3",
-      "recipientName": "Sunny",
-      "amount": 10000,
-      "contributionEach": 2000,
-      "memberCount": 5,
-      "payments": {},
-      "note": "",
-      "closedOn": "2026-09-21T16:52:00.548Z"
-    }
-  ],
+  "history": [],
   "draft": {
     "payments": {},
-    "recipientId": "",
+    "recipientId": "m3",
     "note": ""
   },
   "log": [
+    {
+      "at": "2026-09-21T16:52:30.638Z",
+      "by": "Admin",
+      "action": "Reopened last closed month"
+    },
     {
       "at": "2026-09-21T16:52:00.556Z",
       "by": "Admin",
