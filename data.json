@@ -31,12 +31,18 @@
   "draft": {
     "payments": {
       "m1": false,
-      "m2": "2026-10-06T12:58:42.975Z"
+      "m2": "2026-10-06T12:58:42.975Z",
+      "m3": "2026-10-06T12:58:44.308Z"
     },
     "recipientId": "m3",
     "note": ""
   },
   "log": [
+    {
+      "at": "2026-10-06T12:58:44.317Z",
+      "by": "Nirav",
+      "action": "Sunny marked paid for October 2026"
+    },
     {
       "at": "2026-10-06T12:58:42.983Z",
       "by": "Nirav",
