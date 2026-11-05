@@ -51,10 +51,15 @@
   ],
   "draft": {
     "payments": {},
-    "recipientId": "",
+    "recipientId": "m4",
     "note": ""
   },
   "log": [
+    {
+      "at": "2026-11-05T13:52:48.766Z",
+      "by": "Nirav",
+      "action": "Chose Jay to take the pot"
+    },
     {
       "at": "2026-11-05T13:52:43.335Z",
       "by": "Nirav",
