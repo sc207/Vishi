@@ -47,19 +47,38 @@
       },
       "note": "",
       "closedOn": "2026-11-05T13:52:43.324Z"
+    },
+    {
+      "id": "h37z8ca",
+      "cycle": 1,
+      "round": 2,
+      "monthLabel": "November 2026",
+      "recipientId": "m4",
+      "recipientName": "Jay",
+      "amount": 10000,
+      "contributionEach": 2000,
+      "memberCount": 5,
+      "payments": {
+        "m2": "2026-11-05T13:52:54.063Z",
+        "m3": "2026-11-05T13:52:58.320Z",
+        "m4": "2026-11-05T13:53:04.683Z",
+        "m5": "2026-11-05T13:56:57.550Z"
+      },
+      "note": "",
+      "closedOn": "2026-11-05T13:57:06.995Z"
     }
   ],
   "draft": {
-    "payments": {
-      "m2": "2026-11-05T13:52:54.063Z",
-      "m3": "2026-11-05T13:52:58.320Z",
-      "m4": "2026-11-05T13:53:04.683Z",
-      "m5": "2026-11-05T13:56:57.550Z"
-    },
-    "recipientId": "m4",
+    "payments": {},
+    "recipientId": "",
     "note": ""
   },
   "log": [
+    {
+      "at": "2026-11-05T13:57:07.006Z",
+      "by": "Nirav",
+      "action": "Closed November 2026: Jay took ₹10,000"
+    },
     {
       "at": "2026-11-05T13:56:57.565Z",
       "by": "Nirav",
