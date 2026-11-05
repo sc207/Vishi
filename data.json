@@ -50,11 +50,18 @@
     }
   ],
   "draft": {
-    "payments": {},
+    "payments": {
+      "m2": "2026-11-05T13:52:54.063Z"
+    },
     "recipientId": "m4",
     "note": ""
   },
   "log": [
+    {
+      "at": "2026-11-05T13:52:54.075Z",
+      "by": "Nirav",
+      "action": "Nirav marked paid for November 2026"
+    },
     {
       "at": "2026-11-05T13:52:48.766Z",
       "by": "Nirav",
